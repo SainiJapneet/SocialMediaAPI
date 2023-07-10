@@ -10,6 +10,11 @@ const postModel = new mongoose.Schema({
     tags:{
         type: String
     },
+    userId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "socialuser",
+        required: true
+    },
     userName:{
         type: String
     }

@@ -1,1 +1,2 @@
-export const secretKey = "Is-It-A-Secret?";
+const secretKey = "Is-It-A-Secret?";
+export default secretKey;

@@ -1,8 +1,11 @@
 import express from "express";
+import bcrypt from "bcrypt";
 import User from "../models/userModel.mjs";
 import Post from "../models/postModel.mjs";
+import jwt from "jsonwebtoken";
 import Comment from "../models/commentModel.mjs"
 import secretKey from "./config.mjs";
+import authorization from "./authorization.mjs";
 
 const route = express.Router();
 
@@ -12,21 +15,20 @@ route.post('/register', async (request, response) => {
       console.log("Hashed Password: " + hashedPassword);
   
       const user = new User({
+        name: request.body.name,
+        userName: request.body.userName,
         email: request.body.email,
         password: hashedPassword,
-        age: request.body.age,
-        address: request.body.address,
       });
-  
       const result = await user.save();
       response.status(200).send({
-        message: "Created new User",
-        result,
+        message: "Created new User \n" + result,
       });
     } catch (error) {
       response.status(500).send({
-        message: "User not created",
-        error,
+        message: "User not created ",
+        error: error.message,
+        
       });
     }
   });
@@ -34,7 +36,7 @@ route.post('/register', async (request, response) => {
   //Sign In
   route.post("/login", async (request, response) => {
     try {
-      const user = await User.findOne({ email: request.body.email });
+      const user = await User.findOne({ email: request.body.email.toLowerCase().trim() });
       console.log(user);
   
       const passwordMatch = await bcrypt.compare(request.body.password, user.password);
@@ -49,8 +51,8 @@ route.post('/register', async (request, response) => {
       const token = jwt.sign({
         userId: user._id,
         userEmail: user.email,
-        userAge: user.age,
-        userAddress: user.address
+        name: user.name,
+        userName: user.userName
       }, secretKey, { expiresIn: "12h" });
   
       response.status(200).send({
@@ -61,7 +63,7 @@ route.post('/register', async (request, response) => {
     } catch (error) {
       response.status(400).send({
         message: "Email not found",
-        error
+        error: error.message
       });
     }
   });
@@ -107,5 +109,23 @@ route.get("/getUser/:id", async (request, response) => {
     }
   })
 
+  //addPost
+  route.post("/addPost",authorization,async (request, response)=>{
+    const post = Post({
+        title: request.body.title,
+        content: request.body.content,
+        tags: request.body.tags,
+        userId: request.user.userId,
+        userName: request.user.userName
+    })
+    try{
+        const newPost = await post.save();
+        response.status(200).json(newPost);
+        console.log("New post created");
+        console.log(newPost)
+    }catch(error){
+        response.status(500).json({message : error.message});
+    }
+  })
   export default route;
   
