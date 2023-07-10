@@ -110,7 +110,7 @@ route.get("/getUser/:id", async (request, response) => {
   })
 
   //addPost
-  route.post("/addPost",authorization,async (request, response)=>{
+  route.post("/addPost", authorization,async (request, response)=>{
     const post = Post({
         title: request.body.title,
         content: request.body.content,
@@ -126,6 +126,6 @@ route.get("/getUser/:id", async (request, response) => {
     }catch(error){
         response.status(500).json({message : error.message});
     }
-  })
+  });
   export default route;
   
