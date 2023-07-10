@@ -68,6 +68,18 @@ route.post('/register', async (request, response) => {
     }
   });
 
+  //getUser
+  route.get("/getUser", async (request, response) => {
+    try{
+      const user = await User.find();
+      response.json(user);
+      console.log("List of users : ");
+      console.log(user);
+    }catch(error){
+      response.status(500).json({message: error.message});
+    }
+  })
+
   //getUserByID
 route.get("/getUser/:id", async (request, response) => {
     try{
@@ -127,5 +139,58 @@ route.get("/getUser/:id", async (request, response) => {
         response.status(500).json({message : error.message});
     }
   });
+
+  //getPost
+  route.get("/getPost",async (request, response)=>{
+    try{
+      const post = await Post.find();
+      response.json(post);
+      console.log("All posts");
+      console.log(posts);
+    }catch(error){
+      response.status(500).json({message: error.message});
+    }
+  })
+
+  //getPostByID
+  route.get("/getPost/:id", async (request, response) =>{
+    try{
+      const id = request.params.id;
+      const post = await Post.findById(id);
+      response.json(post);
+      console.log("Post with id : " + id);
+      console.log(post);
+    }catch(error){
+      response.status(500).json({message: error.message});
+    }
+  })
+
+  //updatePost
+  route.patch("/updatePost/:id",async (request,response)=>{
+    try{
+      const id = request.params.id;
+      const newPost = request.body;
+      const options = {new : true};
+      const result = await Post.findByIdAndUpdate(id, newPost, options);
+      response.send(result);
+      console.log("Updated Post");
+      console.log(result);
+    }catch(error){
+      response.status(500).json({message : error.message});
+    }
+  })
+
+  //deletePost
+  route.delete("/deletePost/:id",async (request,response)=>{
+    try{
+      const id = request.params.id;
+      const deletePost = await Post.findByIdAndRemove(id);
+      response.send(deletePost);
+      console.log("Deleted Post : ");
+      console.log(deletePost);
+    }catch(error){
+      response.status(500).json({message : error.message});
+    }
+  })
+
   export default route;
-  
