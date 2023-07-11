@@ -13,3 +13,5 @@ app.use(express.urlencoded({extended: true}));
 app.listen(port, ()=> {
     console.log("Server initiated on port " + port);
 });
+
+export default app;
