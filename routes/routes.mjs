@@ -9,6 +9,7 @@ import authorization from "./authorization.mjs";
 
 const route = express.Router();
 
+  //Sign Up
 route.post('/register', async (request, response) => {
     try {
       const hashedPassword = await bcrypt.hash(request.body.password, 10);
@@ -22,7 +23,8 @@ route.post('/register', async (request, response) => {
       });
       const result = await user.save();
       response.status(200).send({
-        message: "Created new User \n" + result,
+        message: "Created new User \n",
+        result
       });
     } catch (error) {
       response.status(500).send({
@@ -188,6 +190,78 @@ route.get("/getUser/:id", async (request, response) => {
       response.send(deletePost);
       console.log("Deleted Post : ");
       console.log(deletePost);
+    }catch(error){
+      response.status(500).json({message : error.message});
+    }
+  })
+
+  //addComment
+  route.post("/addComment", authorization,async (request, response)=>{
+    
+    const comment = Comment({
+        content: request.body.content, 
+        postId: request.body.postId,
+        userId: request.user.userId,
+        userName: request.user.userName,
+    })
+    try{
+        const newComment = await comment.save();
+        response.status(200).json(newComment);
+        console.log("New comment posted");
+        console.log(newComment)
+    }catch(error){
+        response.status(500).json({message : error.message});
+    }
+  });
+
+  //getComment
+  route.get("/getComment",async (request, response)=>{
+    try{
+      const comment = await Comment.find();
+      response.json(comment);
+      console.log("All comments");
+      console.log(comment);
+    }catch(error){
+      response.status(500).json({message: error.message});
+    }
+  })
+
+  //getCommentByID
+  route.get("/getComment/:id", async (request, response) =>{
+    try{
+      const id = request.params.id;
+      const comment = await Comment.findById(id);
+      response.json(comment);
+      console.log("Comment with id : " + id);
+      console.log(comment);
+    }catch(error){
+      response.status(500).json({message: error.message});
+    }
+  })
+
+  //updateComment
+  route.patch("/updateComment/:id",async (request,response)=>{
+    try{
+      const id = request.params.id;
+      const newComment = request.body;
+      const options = {new : true};
+      const result = await Comment.findByIdAndUpdate(id, newComment, options);
+      response.send(result);
+      console.log("Updated Comment");
+      console.log(result);
+    }catch(error){
+      response.status(500).json({message : error.message});
+    }
+  })
+
+  //deleteComment
+  route.delete("/deleteComment/:id",async (request,response)=>{
+    try{
+      const id = request.params.id;
+      const deleteComment = await Comment.findByIdAndRemove(id);
+      response.send(deleteComment);
+      console.log("Deleted Post : ");
+      console.log(deleteComment);
     }catch(error){
       response.status(500).json({message : error.message});
     }
